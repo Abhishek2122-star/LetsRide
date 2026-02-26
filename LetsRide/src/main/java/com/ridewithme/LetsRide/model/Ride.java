@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "Rides")
+@Table(name = "rides")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,15 +19,14 @@ public class Ride {
 
     private String dropLocation;
 
-    private String status;
-    // Example: REQUESTED, ACCEPTED, COMPLETED
+    private String status; // REQUESTED, ACCEPTED, COMPLETED
 
-    // 🔹 Many rides can belong to one user
+    // Many rides can be booked by one user
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    // 🔹 Many rides can be assigned to one driver
+    // Many rides can be handled by one driver
     @ManyToOne
     @JoinColumn(name = "driver_id")
     private Driver driver;
