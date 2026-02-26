@@ -1,0 +1,28 @@
+package com.ridewithme.LetsRide.service;
+
+import com.ridewithme.LetsRide.model.User;
+import com.ridewithme.LetsRide.repository.UserRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class UserService {
+
+    private final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    // Register user
+    public User registerUser(User user) {
+        user.setRole("USER");
+        return userRepository.save(user);
+    }
+
+    // Get all users
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+}
