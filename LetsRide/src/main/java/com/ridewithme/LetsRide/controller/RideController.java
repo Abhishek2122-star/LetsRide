@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/ride")
+@RequestMapping("/rides")
 public class RideController {
 
     private final RideRepository rideRepository;
@@ -16,13 +16,13 @@ public class RideController {
         this.rideRepository = rideRepository;
     }
 
-    //  Create Ride
+    // 🚗 Create Ride
     @PostMapping
     public Ride createRide(@RequestBody Ride ride) {
         return rideRepository.save(ride);
     }
 
-    //  Get All Rides
+    // 📋 Get All Rides
     @GetMapping
     public List<Ride> getAllRides() {
         return rideRepository.findAll();
