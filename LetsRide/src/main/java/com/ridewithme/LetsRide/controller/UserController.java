@@ -1,42 +1,30 @@
 package com.ridewithme.LetsRide.controller;
 
 import com.ridewithme.LetsRide.model.User;
-import com.ridewithme.LetsRide.repository.UserRepository;
-import com.ridewithme.LetsRide.security.JwtUtil;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.ridewithme.LetsRide.service.UserService;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
+    private final UserService userService;
 
-    public UserController(UserRepository userRepository,
-                          PasswordEncoder passwordEncoder,
-                          JwtUtil jwtUtil) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
-    // LOGIN API
-    @PostMapping("/login")
-    public String login(@RequestBody User user) {
+    // Register user
+    @PostMapping("/register")
+    public User register(@RequestBody User user) {
+        return userService.registerUser(user);
+    }
 
-        User existingUser = userRepository.findByEmail(user.getEmail());
-
-        if (existingUser == null) {
-            return "User not found";
-        }
-
-        if (!passwordEncoder.matches(user.getPassword(), existingUser.getPassword())) {
-            return "Invalid password";
-        }
-
-        // Generate JWT token
-        return jwtUtil.generateToken(existingUser.getEmail());
+    // Get all users
+    @GetMapping
+    public List<User> getUsers() {
+        return userService.getAllUsers();
     }
 }

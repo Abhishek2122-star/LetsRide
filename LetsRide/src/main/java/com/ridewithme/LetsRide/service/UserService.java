@@ -5,6 +5,7 @@ import com.ridewithme.LetsRide.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -19,36 +20,38 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // Register user
+    // ✅ Register user
     public User registerUser(User user) {
 
-        // Encrypt password
+        // 🔹 Basic validation
+        if (user.getEmail() == null || user.getEmail().isBlank()) {
+            throw new RuntimeException("Email is required");
+        }
+
+        if (user.getPassword() == null || user.getPassword().isBlank()) {
+            throw new RuntimeException("Password is required");
+        }
+
+        // 🔹 Check if email already exists
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already registered");
+        }
+
+        // 🔐 Encode password
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        // Set default role
-        user.setRole("USER");
+        // 👤 Default role
+        if (user.getRole() == null || user.getRole().isBlank()) {
+            user.setRole("USER");
+        }
+
+        // 🕒 Set created time
+        user.setCreatedAt(LocalDateTime.now());
 
         return userRepository.save(user);
     }
 
-    // Login user
-    public User loginUser(String email, String password) {
-
-        User user = userRepository.findByEmail(email);
-
-        if (user == null) {
-            throw new RuntimeException("User not found");
-        }
-
-        // Check encrypted password
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("Invalid password");
-        }
-
-        return user;
-    }
-
-    // Get all users
+    // ✅ Get all users
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
