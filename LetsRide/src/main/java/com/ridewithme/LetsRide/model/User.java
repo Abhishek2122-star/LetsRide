@@ -1,8 +1,10 @@
 package com.ridewithme.LetsRide.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore; // 👈 Import this
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
+import org.hibernate.annotations.CreationTimestamp; // 👈 Useful for automatic dates
 
 @Entity
 @Data
@@ -17,9 +19,11 @@ public class User {
     @Column(unique = true)
     private String email;
 
+    @JsonIgnore // 👈 CRITICAL: This hides the password from API responses
     private String password;
 
-    private String role = "USER";  // default role
+    private String role = "USER";
 
-    private LocalDateTime createdAt; // 🔹 add this field
+    @CreationTimestamp // 👈 Automatically sets the date when a user is created
+    private LocalDateTime createdAt;
 }

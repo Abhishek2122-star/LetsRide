@@ -7,10 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface RideRepository extends JpaRepository<Ride, Long> {
-
-    // Find all rides by a user
+    // ✅ Use the actual User object relationship we created
     List<Ride> findByUser(User user);
 
-    // Find all rides by a driver
+    // ✅ Added for driver support
     List<Ride> findByDriver(Driver driver);
 }

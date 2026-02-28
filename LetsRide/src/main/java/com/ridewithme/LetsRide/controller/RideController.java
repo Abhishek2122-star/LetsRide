@@ -1,11 +1,16 @@
-
 package com.ridewithme.LetsRide.controller;
 
+import com.ridewithme.LetsRide.model.Ride;
+import com.ridewithme.LetsRide.model.User;
+import com.ridewithme.LetsRide.repository.UserRepository;
+import com.ridewithme.LetsRide.service.RideService;
 import com.ridewithme.LetsRide.security.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/ride")
@@ -13,38 +18,35 @@ import org.springframework.web.bind.annotation.*;
 public class RideController {
 
     private final JwtUtil jwtUtil;
+    private final RideService rideService; // Inject Service instead of Repo
+    private final UserRepository userRepository;
 
-    // 1. This Record acts as a DTO (Data Transfer Object)
-    // It must match the keys in your Postman JSON exactly!
     public record RideRequest(String pickupLocation, String destination, String rideType) {}
 
     @PostMapping("/book")
-    public ResponseEntity<?> bookRide(
-            @RequestBody RideRequest rideRequest, // 👈 2. This maps the JSON to the Java object
-            HttpServletRequest request) {
-
-        // Check for Authorization Header
+    public ResponseEntity<?> bookRide(@RequestBody RideRequest rideRequest, HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(401).body("Missing or invalid token");
-        }
-
         String token = authHeader.substring(7);
         String email = jwtUtil.extractEmail(token);
 
-        if (!jwtUtil.validateToken(token, email)) {
-            return ResponseEntity.status(401).body("Invalid or expired token");
-        }
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // 3. Use the data from the JSON body
-        String responseMessage = String.format(
-                "Booking confirmed! Type: %s | From: %s | To: %s | User: %s",
-                rideRequest.rideType(),
-                rideRequest.pickupLocation(),
-                rideRequest.destination(),
-                email
-        );
+        // Call the service method that was throwing errors earlier
+        Ride ride = rideService.requestRide(user.getId(), rideRequest.pickupLocation(), rideRequest.destination());
 
-        return ResponseEntity.ok(responseMessage);
+        return ResponseEntity.ok(ride);
+    }
+
+    @GetMapping("/my-rides")
+    public ResponseEntity<List<Ride>> getMyRides(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        String token = authHeader.substring(7);
+        String email = jwtUtil.extractEmail(token);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return ResponseEntity.ok(rideService.getRidesByUser(user.getId()));
     }
 }

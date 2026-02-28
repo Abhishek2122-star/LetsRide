@@ -7,6 +7,7 @@ import com.ridewithme.LetsRide.model.enums.RideStatus;
 import com.ridewithme.LetsRide.repository.DriverRepository;
 import com.ridewithme.LetsRide.repository.RideRepository;
 import com.ridewithme.LetsRide.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,27 +16,23 @@ import java.util.List;
 
 @Service
 @Transactional
+@RequiredArgsConstructor // 👈 Simplifies the constructor for you
 public class RideService {
 
     private final RideRepository rideRepository;
     private final UserRepository userRepository;
     private final DriverRepository driverRepository;
 
-    public RideService(RideRepository rideRepository, UserRepository userRepository, DriverRepository driverRepository) {
-        this.rideRepository = rideRepository;
-        this.userRepository = userRepository;
-        this.driverRepository = driverRepository;
-    }
-
     // 1️⃣ Book a new ride
     public Ride requestRide(Long userId, String pickup, String drop) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // ✅ Now .user() and .dropLocation() will work perfectly
         Ride ride = Ride.builder()
                 .user(user)
                 .pickupLocation(pickup)
-                .dropLocation(drop)
+                .dropLocation(drop) // Matches the field in Ride.java
                 .status(RideStatus.REQUESTED)
                 .requestedAt(LocalDateTime.now())
                 .build();
@@ -49,7 +46,7 @@ public class RideService {
                 .orElseThrow(() -> new RuntimeException("Ride not found"));
 
         if (ride.getStatus() != RideStatus.REQUESTED) {
-            throw new RuntimeException("Ride cannot be accepted");
+            throw new RuntimeException("Ride cannot be accepted (Status is: " + ride.getStatus() + ")");
         }
 
         Driver driver = driverRepository.findById(driverId)
