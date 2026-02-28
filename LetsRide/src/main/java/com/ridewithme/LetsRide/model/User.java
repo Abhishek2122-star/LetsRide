@@ -1,17 +1,11 @@
 package com.ridewithme.LetsRide.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import lombok.*;
-
+import lombok.Data;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Users")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class User {
 
     @Id
@@ -20,16 +14,12 @@ public class User {
 
     private String name;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true)
     private String email;
 
-    // 🔐 Password will be accepted in request but NOT returned in response
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    private String phone;
+    private String role = "USER";  // default role
 
-    private String role; // USER / ADMIN
-
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt; // 🔹 add this field
 }

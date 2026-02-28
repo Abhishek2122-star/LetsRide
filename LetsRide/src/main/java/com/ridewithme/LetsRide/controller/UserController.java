@@ -2,29 +2,26 @@ package com.ridewithme.LetsRide.controller;
 
 import com.ridewithme.LetsRide.model.User;
 import com.ridewithme.LetsRide.service.UserService;
+import lombok.RequiredArgsConstructor; // Use Lombok to keep it clean
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    // ❌ REMOVED: @PostMapping("/register")
+    // This is now handled by AuthController at /auth/register
 
-    // Register user
-    @PostMapping("/register")
-    public User register(@RequestBody User user) {
-        return userService.registerUser(user);
-    }
-
-    // Get all users
+    // Get all users (This will now require a JWT Token to access)
     @GetMapping
     public List<User> getUsers() {
         return userService.getAllUsers();
     }
+
+    // You can add "Get Profile" or "Update Profile" here later
 }
