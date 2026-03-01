@@ -1,7 +1,7 @@
 // In your React Component (e.g., BookRide.js)
 const rideData = {
     pickupLocation: pickup,   // Must match Java field name
-    destination: destination, // Must match Java field name
+    dropLocation: dropLocation, // Must match Java field name
     rideType: type           // Must match Java field name
 };
 

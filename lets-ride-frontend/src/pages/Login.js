@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import api from '../api/axiosConfig'; // This uses the "bridge" we just built
+import api from '../api/axiosConfig';
+import './Auth.css'; // Make sure to import the CSS
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -9,27 +10,50 @@ const Login = () => {
         e.preventDefault();
         try {
             const response = await api.post('/auth/login', { email, password });
-            // Save the token so axiosConfig can use it later
             localStorage.setItem('token', response.data.token);
-            alert("Login Successful!");
-            window.location.href = "/dashboard"; // 👈 This moves the user to the dashboard
-            console.log("Token:", response.data.token);
+            window.location.href = "/dashboard";
         } catch (error) {
             console.error("Login failed", error);
-            alert("Invalid email or password");
+            alert("Oops! Invalid credentials. Check your email/password.");
         }
     };
 
     return (
-        <div style={{ marginTop: '50px', textAlign: 'center' }}>
-            <h2>Login to LetsRide</h2>
-            <form onSubmit={handleLogin}>
-                <input type="email" placeholder="Email" value={email}
-                    onChange={(e) => setEmail(e.target.value)} required /><br/><br/>
-                <input type="password" placeholder="Password" value={password}
-                    onChange={(e) => setPassword(e.target.value)} required /><br/><br/>
-                <button type="submit">Sign In</button>
-            </form>
+        <div className="auth-wrapper">
+            <div className="auth-card">
+                <h2>Welcome Back</h2>
+                <p>Login to start your journey with LetsRide</p>
+
+                <form onSubmit={handleLogin}>
+                    <div className="form-group">
+                        <label>Email Address</label>
+                        <input
+                            type="email"
+                            placeholder="name@example.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>Password</label>
+                        <input
+                            type="password"
+                            placeholder="••••••••"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <button type="submit" className="btn-auth">Sign In</button>
+                </form>
+
+                <div className="auth-footer">
+                    Don't have an account? <a href="/signup">Create account</a>
+                </div>
+            </div>
         </div>
     );
 };
