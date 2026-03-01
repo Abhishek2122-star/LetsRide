@@ -1,15 +1,12 @@
 package com.ridewithme.LetsRide.repository;
 
 import com.ridewithme.LetsRide.model.Ride;
-import com.ridewithme.LetsRide.model.User;
-import com.ridewithme.LetsRide.model.Driver;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 import java.util.List;
 
+@Repository
 public interface RideRepository extends JpaRepository<Ride, Long> {
-    // ✅ Use the actual User object relationship we created
-    List<Ride> findByUser(User user);
-
-    // ✅ Added for driver support
-    List<Ride> findByDriver(Driver driver);
+    // We use userId because that is the field name in your Ride.java
+    List<Ride> findByUserId(Long userId);
 }

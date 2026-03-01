@@ -18,9 +18,10 @@ import java.util.List;
 public class RideController {
 
     private final JwtUtil jwtUtil;
-    private final RideService rideService; // Inject Service instead of Repo
+    private final RideService rideService;
     private final UserRepository userRepository;
 
+    // Matches what React sends in the JSON body
     public record RideRequest(String pickupLocation, String destination, String rideType) {}
 
     @PostMapping("/book")
@@ -32,10 +33,21 @@ public class RideController {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Call the service method that was throwing errors earlier
-        Ride ride = rideService.requestRide(user.getId(), rideRequest.pickupLocation(), rideRequest.destination());
+        // ✅ Fixed: Now passing 4 arguments: ID, Pickup, Drop (destination), and Type
+        Ride ride = rideService.requestRide(
+                user.getId(),
+                rideRequest.pickupLocation(),
+                rideRequest.destination(),
+                rideRequest.rideType()
+        );
 
         return ResponseEntity.ok(ride);
+    }
+
+    // ✅ ADD THIS: This is what your React Dashboard "api.get('/ride/all')" calls!
+    @GetMapping("/all")
+    public ResponseEntity<List<Ride>> getAllRides() {
+        return ResponseEntity.ok(rideService.getAllRides());
     }
 
     @GetMapping("/my-rides")

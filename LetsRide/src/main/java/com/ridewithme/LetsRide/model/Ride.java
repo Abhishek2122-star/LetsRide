@@ -12,17 +12,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Ride {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @ManyToOne
-    @JoinColumn(name = "driver_id")
-    private Driver driver;
 
     private String pickupLocation;
     private String dropLocation;
@@ -35,6 +28,7 @@ public class Ride {
     private LocalDateTime startedAt;
     private LocalDateTime completedAt;
 
-    @Builder.Default
-    private LocalDateTime bookingTime = LocalDateTime.now();
+    // Use IDs instead of full objects to keep it simple and match your DB
+    private Long userId;
+    private Long driverId;
 }

@@ -9,7 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth") // Base path is /auth
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -17,7 +17,7 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    @PostMapping("/register") // URL: http://localhost:8080/auth/register
+    @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         if (userRepository.findByEmail(request.email()).isPresent()) {
             return ResponseEntity.badRequest().body("Email already exists");
@@ -27,17 +27,28 @@ public class AuthController {
         user.setName(request.name());
         user.setEmail(request.email());
         user.setPassword(passwordEncoder.encode(request.password()));
+        user.setRole("USER");
 
         userRepository.save(user);
         return ResponseEntity.ok("User registered successfully");
     }
 
-    @PostMapping("/login") // URL: http://localhost:8080/auth/login
+    @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        // 1. Log what is coming from the React Frontend
+        System.out.println("DEBUG: Login attempt for email: " + request.email());
+
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+        // 2. Log what is stored in the Database (The Hash)
+        System.out.println("DEBUG: Stored Hash in DB: " + user.getPassword());
+
+        // 3. Check if they match
+        boolean isMatch = passwordEncoder.matches(request.password(), user.getPassword());
+        System.out.println("DEBUG: Password Match Result: " + isMatch);
+
+        if (!isMatch) {
             return ResponseEntity.status(401).body("Invalid credentials");
         }
 
@@ -46,7 +57,6 @@ public class AuthController {
     }
 }
 
-// Keep these records at the bottom or in separate files
 record RegisterRequest(String name, String email, String password) {}
 record LoginRequest(String email, String password) {}
 record AuthResponse(String token) {}

@@ -1,10 +1,9 @@
 package com.ridewithme.LetsRide.model.enums;
 
 public enum RideStatus {
-
-    REQUESTED,
     ACCEPTED,
-    ONGOING,
+    CANCELLED,
     COMPLETED,
-    CANCELLED
+    ONGOING,
+    REQUESTED
 }
