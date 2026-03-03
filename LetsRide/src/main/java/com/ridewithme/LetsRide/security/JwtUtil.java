@@ -1,68 +1,67 @@
 package com.ridewithme.LetsRide.security;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.security.Key;
 import java.util.Date;
 
 @Component
 public class JwtUtil {
 
-    // ✅ MUST be >= 32 characters
-    private final String SECRET = "LetsRideSecretKeyForJwtTokenGeneration2026";
+    // ✅ Requirement: Must be at least 256-bit (32+ chars)
+    private final String SECRET_STRING = "LetsRideSecretKeyForJwtTokenGeneration2026_Secure_Long_String";
 
-    // 🔐 Secure key
-    private final SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes());
+    // ✅ Initialize the key once to be used for both Signing and Parsing
+    private final SecretKey key = Keys.hmacShaKeyFor(SECRET_STRING.getBytes());
 
-    private final long EXPIRATION = 86400000; // 1 day
+    // ✅ 7 Days Expiration
+    private final long EXPIRATION_TIME = 604800000;
 
-    // 🔐 Generate JWT token
+    // 🚀 1. Generate JWT token
     public String generateToken(String email) {
-
         return Jwts.builder()
                 .setSubject(email)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
-                .signWith(key, SignatureAlgorithm.HS256)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(key, SignatureAlgorithm.HS256) // ✅ Uses the initialized key
                 .compact();
     }
 
-    // 📖 Extract email from token
+    // 🚀 2. Extract Email (Subject)
     public String extractEmail(String token) {
-
         return extractClaims(token).getSubject();
     }
 
-    // 📖 Extract all claims
+    // 🚀 3. Extract All Claims (Parsing)
     private Claims extractClaims(String token) {
-
         return Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(key) // ✅ Uses the same key to verify
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
     }
 
-    // ⏰ Check expiration
+    // 🚀 4. Check if token is expired
     private boolean isTokenExpired(String token) {
-
         return extractClaims(token)
                 .getExpiration()
                 .before(new Date());
     }
 
-    // ✅ Validate token
+    // 🚀 5. Validate Token
     public boolean validateToken(String token, String email) {
-
         try {
-            String extractedEmail = extractEmail(token);
-
-            return extractedEmail.equals(email)
-                    && !isTokenExpired(token);
-
-        } catch (JwtException e) {
+            final String extractedEmail = extractEmail(token);
+            return (extractedEmail.equals(email) && !isTokenExpired(token));
+        } catch (ExpiredJwtException e) {
+            System.out.println("❌ Token Expired: " + e.getMessage());
+            return false;
+        } catch (JwtException | IllegalArgumentException e) {
+            System.out.println("❌ Invalid Token: " + e.getMessage());
             return false;
         }
     }

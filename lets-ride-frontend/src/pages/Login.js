@@ -50,8 +50,9 @@ const Login = () => {
                     <button type="submit" className="btn-auth">Sign In</button>
                 </form>
 
+
                 <div className="auth-footer">
-                    Don't have an account? <a href="/signup">Create account</a>
+                    Don't have an account? <a href="/signup">Create Account</a>
                 </div>
             </div>
         </div>

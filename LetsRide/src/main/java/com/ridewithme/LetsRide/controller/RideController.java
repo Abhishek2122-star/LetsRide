@@ -22,7 +22,7 @@ public class RideController {
     private final UserRepository userRepository;
 
     // Matches what React sends in the JSON body
-    public record RideRequest(String pickupLocation, String destination, String rideType) {}
+    public record RideRequest(String pickupLocation, String dropLocation, String rideType) {}
 
     @PostMapping("/book")
     public ResponseEntity<?> bookRide(@RequestBody RideRequest rideRequest, HttpServletRequest request) {
@@ -37,7 +37,7 @@ public class RideController {
         Ride ride = rideService.requestRide(
                 user.getId(),
                 rideRequest.pickupLocation(),
-                rideRequest.destination(),
+                rideRequest.dropLocation(),
                 rideRequest.rideType()
         );
 

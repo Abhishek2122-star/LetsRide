@@ -1,30 +1,27 @@
 package com.ridewithme.LetsRide.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
-import java.time.LocalDateTime;
-import org.hibernate.annotations.CreationTimestamp;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp; // 👈 Add this
+import java.time.LocalDateTime; // 👈 Add this
 
 @Entity
-@Table(name = "user") // 👈 THIS IS THE FIX. It tells Java to use your "users" table.
+@Table(name = "users")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
-
-    @Column(unique = true)
     private String email;
-
-    @JsonIgnore
     private String password;
-
     private String role = "USER";
 
-    @CreationTimestamp
-    private LocalDateTime createdAt;
+    @CreationTimestamp // 👈 This automatically sets the date when saved
+    private LocalDateTime createdAt; // 👈 This is the "symbol" the error is looking for
 }

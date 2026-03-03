@@ -18,40 +18,59 @@ public class AuthController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        if (userRepository.findByEmail(request.email()).isPresent()) {
-            return ResponseEntity.badRequest().body("Email already exists");
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) { // 👈 Use the Record here
+        // 1. Manual Debugging - Check your IntelliJ console!
+        System.out.println("DEBUG: Incoming Password from JSON: " + request.password());
+
+        if (request.password() == null || request.password().isEmpty()) {
+            return ResponseEntity.badRequest().body("Error: Backend received no password!");
         }
 
+        // 2. Check if email exists
+        if (userRepository.findByEmail(request.email()).isPresent()) {
+            return ResponseEntity.badRequest().body("Error: Email is already in use!");
+        }
+
+        // 3. Manually map Record to Entity
         User user = new User();
         user.setName(request.name());
         user.setEmail(request.email());
-        user.setPassword(passwordEncoder.encode(request.password()));
         user.setRole("USER");
 
+        // 4. Encode the password directly from the Record
+        user.setPassword(passwordEncoder.encode(request.password()));
+
         userRepository.save(user);
-        return ResponseEntity.ok("User registered successfully");
+        return ResponseEntity.ok("User registered successfully!");
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        // 1. Log what is coming from the React Frontend
+        // 1. Log the incoming data
         System.out.println("DEBUG: Login attempt for email: " + request.email());
 
+        // 2. Find the user
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElse(null);
 
-        // 2. Log what is stored in the Database (The Hash)
-        System.out.println("DEBUG: Stored Hash in DB: " + user.getPassword());
+        if (user == null) {
+            System.out.println("DEBUG: User not found in database for email: " + request.email());
+            return ResponseEntity.status(401).body("Invalid credentials");
+        }
 
-        // 3. Check if they match
+        // 3. Log the hashes for comparison
+        System.out.println("DEBUG: Raw Password from React: " + request.password());
+        System.out.println("DEBUG: Encoded Hash in DB: " + user.getPassword());
+
+        // 4. Verify using the PasswordEncoder bean
         boolean isMatch = passwordEncoder.matches(request.password(), user.getPassword());
-        System.out.println("DEBUG: Password Match Result: " + isMatch);
+        System.out.println("DEBUG: Does password match? " + isMatch);
 
         if (!isMatch) {
             return ResponseEntity.status(401).body("Invalid credentials");
         }
 
+        // 5. Generate and return Token
         String token = jwtUtil.generateToken(user.getEmail());
         return ResponseEntity.ok(new AuthResponse(token));
     }

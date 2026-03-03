@@ -20,13 +20,15 @@ public class RideService {
     private final RideRepository rideRepository;
     private final UserRepository userRepository;
 
-    // 1️⃣ Book a new ride
     public Ride requestRide(Long userId, String pickup, String drop, String type) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        // We don't necessarily need to fetch the whole User object if we just need the ID,
+        // but this check ensures the user actually exists in the DB.
+        if (!userRepository.existsById(userId)) {
+            throw new RuntimeException("User not found");
+        }
 
         Ride ride = Ride.builder()
-                .userId(user.getId())
+                .userId(userId)
                 .pickupLocation(pickup)
                 .dropLocation(drop)
                 .rideType(type)
@@ -37,27 +39,28 @@ public class RideService {
         return rideRepository.save(ride);
     }
 
-    // 2️⃣ Get all rides (This is what your React Dashboard uses)
     public List<Ride> getAllRides() {
         return rideRepository.findAll();
     }
 
-    // 3️⃣ Update Ride Status (For completing/cancelling)
     public Ride updateRideStatus(Long rideId, RideStatus status) {
         Ride ride = rideRepository.findById(rideId)
                 .orElseThrow(() -> new RuntimeException("Ride not found"));
 
         ride.setStatus(status);
-        if (status == RideStatus.COMPLETED) {
+
+        // Handle timestamps based on status transitions
+        if (status == RideStatus.ONGOING) {
+            ride.setStartedAt(LocalDateTime.now());
+        } else if (status == RideStatus.COMPLETED) {
             ride.setCompletedAt(LocalDateTime.now());
         }
+
         return rideRepository.save(ride);
     }
 
-    // 4️⃣ Get rides by user
     public List<Ride> getRidesByUser(Long userId) {
-        return rideRepository.findAll().stream()
-                .filter(ride -> ride.getUserId().equals(userId))
-                .toList();
+        // ✅ Optimization: Use the repository method instead of streaming all records
+        return rideRepository.findByUserId(userId);
     }
 }

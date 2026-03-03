@@ -2,18 +2,18 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import Signup from './pages/Signup'; // 👈 1. Import the Signup page
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Default route shows Login */}
         <Route path="/login" element={<Login />} />
 
-        {/* Dashboard route */}
-        <Route path="/dashboard" element={<Dashboard />} />
+        {/* 👈 2. Add the Signup Route here */}
+        <Route path="/signup" element={<Signup />} />
 
-        {/* Redirect empty path to login */}
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/" element={<Navigate to="/login" />} />
       </Routes>
     </Router>
