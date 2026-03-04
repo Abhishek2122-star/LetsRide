@@ -79,3 +79,6 @@ public class AuthController {
 record RegisterRequest(String name, String email, String password) {}
 record LoginRequest(String email, String password) {}
 record AuthResponse(String token) {}
+
+
+it was littlebit diffiu
