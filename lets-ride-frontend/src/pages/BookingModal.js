@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-
 const BookingModal = ({ isOpen, onClose, onSave }) => {
     const [newRide, setNewRide] = useState({
         pickupLocation: '',
