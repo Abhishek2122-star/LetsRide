@@ -80,4 +80,8 @@ public class RideController {
 
         return ResponseEntity.ok(ride);
     }
+    @GetMapping("/available")
+    public List<Ride> getAvailableRides() {
+        return rideRepository.findByStatus("REQUESTED");
+    }
 }

@@ -11,4 +11,5 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     // We use userId because that is the field name in your Ride.java
     List<Ride> findByUserId(Long userId);
     List<Ride> findByStatus(RideStatus status);
+    List<Ride> findByStatus(String status);
 }
