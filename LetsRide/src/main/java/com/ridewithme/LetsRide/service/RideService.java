@@ -63,4 +63,21 @@ public class RideService {
         // ✅ Optimization: Use the repository method instead of streaming all records
         return rideRepository.findByUserId(userId);
     }
+    public List<Ride> getAvailableRides() {
+        return rideRepository.findByStatus(RideStatus.REQUESTED);
+    }
+    public Ride acceptRide(Long rideId, Long driverId) {
+
+        Ride ride = rideRepository.findById(rideId)
+                .orElseThrow(() -> new RuntimeException("Ride not found"));
+
+        if (ride.getStatus() != RideStatus.REQUESTED) {
+            throw new RuntimeException("Ride already taken");
+        }
+
+        ride.setDriverId(driverId);
+        ride.setStatus(RideStatus.ACCEPTED);
+
+        return rideRepository.save(ride);
+    }
 }

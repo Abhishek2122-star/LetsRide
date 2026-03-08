@@ -26,5 +26,8 @@ public class Driver {
 
     private String licenseNumber;
 
+    // ✅ ADD THIS
+    private String password;
+
     private boolean available = true;
 }

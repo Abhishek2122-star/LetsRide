@@ -1,19 +1,33 @@
 import React, { useState } from 'react';
 import api from '../api/axiosConfig';
-import './Auth.css'; // Make sure to import the CSS
+import { useNavigate } from 'react-router-dom';
+import './Auth.css';
 
 const Login = () => {
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
+    const navigate = useNavigate();
+
     const handleLogin = async (e) => {
         e.preventDefault();
+
         try {
-            const response = await api.post('/auth/login', { email, password });
+
+            const response = await api.post('/auth/login', {
+                email,
+                password
+            });
+
             localStorage.setItem('token', response.data.token);
-            window.location.href = "/dashboard";
+
+            navigate('/dashboard');
+
         } catch (error) {
+
             console.error("Login failed", error);
+
             alert("Oops! Invalid credentials. Check your email/password.");
         }
     };
@@ -21,12 +35,15 @@ const Login = () => {
     return (
         <div className="auth-wrapper">
             <div className="auth-card">
+
                 <h2>Welcome Back</h2>
                 <p>Login to start your journey with LetsRide</p>
 
                 <form onSubmit={handleLogin}>
+
                     <div className="form-group">
                         <label>Email Address</label>
+
                         <input
                             type="email"
                             placeholder="name@example.com"
@@ -36,8 +53,10 @@ const Login = () => {
                         />
                     </div>
 
+
                     <div className="form-group">
                         <label>Password</label>
+
                         <input
                             type="password"
                             placeholder="••••••••"
@@ -47,13 +66,17 @@ const Login = () => {
                         />
                     </div>
 
-                    <button type="submit" className="btn-auth">Sign In</button>
+                    <button type="submit" className="btn-auth">
+                        Sign In
+                    </button>
+
                 </form>
 
 
                 <div className="auth-footer">
                     Don't have an account? <a href="/signup">Create Account</a>
                 </div>
+
             </div>
         </div>
     );

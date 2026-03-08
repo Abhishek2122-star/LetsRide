@@ -49,6 +49,10 @@ public class RideController {
     public ResponseEntity<List<Ride>> getAllRides() {
         return ResponseEntity.ok(rideService.getAllRides());
     }
+    @GetMapping("/available")
+    public ResponseEntity<List<Ride>> getAvailableRides() {
+        return ResponseEntity.ok(rideService.getAvailableRides());
+    }
 
     @GetMapping("/my-rides")
     public ResponseEntity<List<Ride>> getMyRides(HttpServletRequest request) {
@@ -60,5 +64,20 @@ public class RideController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         return ResponseEntity.ok(rideService.getRidesByUser(user.getId()));
+    }
+    @PutMapping("/{rideId}/accept")
+    public ResponseEntity<?> acceptRide(
+            @PathVariable Long rideId,
+            HttpServletRequest request) {
+
+        String token = request.getHeader("Authorization").substring(7);
+        String email = jwtUtil.extractEmail(token);
+
+        User driver = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Driver not found"));
+
+        Ride ride = rideService.acceptRide(rideId, driver.getId());
+
+        return ResponseEntity.ok(ride);
     }
 }
