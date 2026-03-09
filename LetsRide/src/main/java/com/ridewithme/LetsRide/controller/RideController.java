@@ -45,26 +45,20 @@ public class RideController {
     }
 
     // ✅ ADD THIS: This is what your React Dashboard "api.get('/ride/all')" calls!
-    @GetMapping("/all")
-    public ResponseEntity<List<Ride>> getAllRides() {
-        return ResponseEntity.ok(rideService.getAllRides());
-    }
-    @GetMapping("/available")
-    public ResponseEntity<List<Ride>> getAvailableRides() {
-        return ResponseEntity.ok(rideService.getAvailableRides());
-    }
+//    @GetMapping("/all")
+//    public ResponseEntity<List<Ride>> getAllRides() {
+//        return ResponseEntity.ok(rideService.getAllRides());
+//    }
 
     @GetMapping("/my-rides")
-    public ResponseEntity<List<Ride>> getMyRides(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        String token = authHeader.substring(7);
-        String email = jwtUtil.extractEmail(token);
+    public List<Ride> getMyRides(Authentication authentication) {
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email).orElseThrow();
 
-        return ResponseEntity.ok(rideService.getRidesByUser(user.getId()));
+        return rideRepository.findByUser(user);
     }
+
     @PutMapping("/{rideId}/accept")
     public ResponseEntity<?> acceptRide(
             @PathVariable Long rideId,
